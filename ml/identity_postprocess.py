@@ -16,9 +16,11 @@ def apply_image_texture(mesh: trimesh.Trimesh, texture_path: str) -> None:
     rgb = np.asarray(image.convert("RGB"), dtype=np.float32) / 255.0
     lum = rgb @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
     gy, gx = np.gradient(lum)
-    # Keep image-derived normals subtle; high strength creates wave-like
-    # ripples that are not present in the character texture.
-    strength = 0.45
+    # The source image is a color/albedo reference, not a height map.  A
+    # strong image-derived normal turns painted edges into ripple-like bumps
+    # (the "wavy" color artifact seen in single-view output).  Keep this as a
+    # restrained micro-detail cue; authored normals can replace it later.
+    strength = 0.08
     nx, ny = -gx * strength, -gy * strength
     nz = np.ones_like(lum)
     norm = np.sqrt(nx * nx + ny * ny + nz * nz)
@@ -70,7 +72,11 @@ def main() -> None:
     order = np.argsort(values)[::-1]
     up = vectors[:, order[0]]
     side = vectors[:, order[1]]
-    if np.dot(up, np.array([0.0, 1.0, 0.0])) > 0: up = -up
+    # PCA eigenvectors have arbitrary signs.  The character convention is
+    # Y-up, therefore only invert when the principal height axis points down.
+    # The previous `> 0` condition inverted already-correct models and caused
+    # upside-down results.
+    if np.dot(up, np.array([0.0, 1.0, 0.0])) < 0: up = -up
     if np.dot(side, np.array([1.0, 0.0, 0.0])) < 0: side = -side
     depth = np.cross(side, up)
     if np.dot(depth, np.array([0.0, 0.0, 1.0])) < 0: depth = -depth
