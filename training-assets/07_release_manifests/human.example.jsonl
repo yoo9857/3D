@@ -1,0 +1,1 @@
+{"sample_id":"subject_0001_view_000","identity_id":"subject_0001","consent_id":"release-0001","source_tier":"proprietary_consented","views":["front","back","left","right"],"passes":["rgb","depth","normal","segmentation","material_id","albedo"],"qa":{"watertight":true,"uv_coverage":0.96,"missing_texture":false,"rig_integrity":true,"duplicate_identity":false}}

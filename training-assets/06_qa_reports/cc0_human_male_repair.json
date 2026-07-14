@@ -1,0 +1,9 @@
+{
+  "source": "training-assets\\cc0_human_male_rigged.obj",
+  "target": "training-assets\\03_normalized_scene\\cc0_human_male_rigged.glb",
+  "vertices": 15832,
+  "faces": 31668,
+  "watertight": true,
+  "winding_consistent": true,
+  "voxel_remeshed": true
+}

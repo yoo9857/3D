@@ -1,0 +1,19 @@
+{
+  "path": "training-assets\\03_normalized_scene\\cc0_human_male_rigged_textured.glb",
+  "vertices": 15832,
+  "faces": 31668,
+  "watertight": true,
+  "winding_consistent": true,
+  "non_manifold_edges": 0,
+  "degenerate_faces": 0,
+  "bounds": [
+    1.5728780031204224,
+    1.748112023808062,
+    0.3321150131523609
+  ],
+  "finite_vertices": true,
+  "uv_coverage": 0.9191889758450655,
+  "texture_present": true,
+  "warnings": [],
+  "pass": true
+}

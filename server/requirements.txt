@@ -1,0 +1,8 @@
+fastapi>=0.111
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+requests>=2.31
+# demo(자리표시자) 모드용. replicate 모드에선 불필요.
+trimesh>=4.0
+pillow>=10.0
+numpy>=1.24

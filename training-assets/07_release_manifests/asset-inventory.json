@@ -1,0 +1,403 @@
+{
+  "root": "C:\\3D\\training-assets",
+  "file_count": 66,
+  "files": [
+    {
+      "path": "00_reference/human-datasets.json",
+      "kind": "reference",
+      "bytes": 3393,
+      "sha256": "fb81733c28858cbc3851881626998b5e485c1c6e50b6549744bcc8a59ea1d2c1"
+    },
+    {
+      "path": "01_source_archives/HSRD-100/HSR0040-Body-004-LOD2/HSR0040-Body-004-Square.jpg",
+      "kind": "source",
+      "bytes": 248716,
+      "sha256": "e8f174e9c14cc4771a9fff7e8e3cbab797ba109a731b4594360b3cea691f903c"
+    },
+    {
+      "path": "01_source_archives/HSRD-100/HSR0040-Body-004-LOD2/HSR0040-Body-004_LOD2.obj",
+      "kind": "source",
+      "bytes": 975193,
+      "sha256": "4651f3b396ddebc335f38d7a14a840a7a27f2ec1991608502e5a67727a88e760"
+    },
+    {
+      "path": "01_source_archives/HSRD-100/HSR0040-Body-004-LOD2/HSR0040-Body-004_LOD2_u0_v0_diffuse.png",
+      "kind": "source",
+      "bytes": 22881543,
+      "sha256": "2e32daa39deb07d1bca1c76fc045bcb77301c7358e8a597b244d10e0ff779f38"
+    },
+    {
+      "path": "01_source_archives/HSRD-100/HSR0040-Body-004-LOD2/person_metadata.json",
+      "kind": "source",
+      "bytes": 708,
+      "sha256": "5510e4edb7bf0e908fae32f7bf56e91cf024f2e2efdc380134dfaa7675f01157"
+    },
+    {
+      "path": "01_source_archives/HSRD-100/HSR0040-Body-004-LOD2/pose_metadata.json",
+      "kind": "source",
+      "bytes": 908,
+      "sha256": "62a323518a2a51830e46a8c984468772acf25596cb9ed246d4aec0b4a00dd21d"
+    },
+    {
+      "path": "01_source_archives/HSRD-100/HSR0040-Body-004-Scan-LOD2.zip",
+      "kind": "source",
+      "bytes": 23356602,
+      "sha256": "21a4af8dbb047115069491ba27b474e4b3d9e2a88b183e2d4b08337082ca1c81"
+    },
+    {
+      "path": "01_source_archives/HSRD-100/persons.jsonl",
+      "kind": "source",
+      "bytes": 1685,
+      "sha256": "d98866b4d33cb5003220c84048db460825211b171f653015c40f331e1a4dd107"
+    },
+    {
+      "path": "01_source_archives/HSRD-100/poses.jsonl",
+      "kind": "source",
+      "bytes": 69750,
+      "sha256": "ceb963e6a5fe5c0421d99ae57c2717acbec1bb1a1fa881c96e317c52d0f65a1e"
+    },
+    {
+      "path": "01_source_archives/HSRD-100/README.md",
+      "kind": "source",
+      "bytes": 8985,
+      "sha256": "359b5b10fcb8deb7dded4f65299103c34e4e4c2ec8a6d7e9b5a1bbef2a7e8c40"
+    },
+    {
+      "path": "02_max_derivatives/Identity3D_Export.ms",
+      "kind": "max_derivative",
+      "bytes": 975,
+      "sha256": "7dcec235532bf8adf5f577635950e3f89dfce4c72a604f47a2318154f5148850"
+    },
+    {
+      "path": "02_max_derivatives/Identity3D_Render.ms",
+      "kind": "max_derivative",
+      "bytes": 1680,
+      "sha256": "ee94806afc20996f09e063c648acc8c874950d65061c4b3079156a2add303346"
+    },
+    {
+      "path": "03_normalized_scene/cc0_human_male_rigged.glb",
+      "kind": "normalized",
+      "bytes": 760988,
+      "sha256": "72a30426a728dbed35a48ce9f5750d11b03d72f329b524444ab57858a039725d"
+    },
+    {
+      "path": "03_normalized_scene/cc0_human_male_rigged_textured.glb",
+      "kind": "normalized",
+      "bytes": 2107236,
+      "sha256": "9979f15c5307face72d1496331ea6a703ee5b661a5600064c0fbe90a220df1a9"
+    },
+    {
+      "path": "03_normalized_scene/HSR0040-Body-004_LOD2.glb",
+      "kind": "normalized",
+      "bytes": 880032,
+      "sha256": "4dc3db4a96f43d72b88ee4ac07b897c8b2c2bdb0b8265cd2eeca89bbcfba248b"
+    },
+    {
+      "path": "03_normalized_scene/HSR0040-Body-004_LOD2_textured.glb",
+      "kind": "normalized",
+      "bytes": 25149112,
+      "sha256": "f14fcfa53a65d98c3cdc3bc4a385319ae554e7086cd6b1d9676a973129785500"
+    },
+    {
+      "path": "05_identity3d_ovoxel/cc0_human_male_roundtrip.glb",
+      "kind": "identity3d",
+      "bytes": 3350832,
+      "sha256": "2e02e38276159a9a51890773d018bae6e36cdf3c06c44e539722eba4f823258e"
+    },
+    {
+      "path": "06_qa_reports/cc0_human_male_normalized.json",
+      "kind": "qa",
+      "bytes": 421,
+      "sha256": "2d0429953388a9819debd06200dca786b070fbf6ffdbc80d46b4e51586f77739"
+    },
+    {
+      "path": "06_qa_reports/cc0_human_male_repair.json",
+      "kind": "qa",
+      "bytes": 264,
+      "sha256": "e8ea44f6efeb87f08ec160dd7f8568283c3b5ff210c13418671782dd582068aa"
+    },
+    {
+      "path": "06_qa_reports/cc0_human_male_roundtrip.json",
+      "kind": "qa",
+      "bytes": 495,
+      "sha256": "25bea71404b7fe503b00f0475d868d91b76680e76c7063ffaf8fee76a3328092"
+    },
+    {
+      "path": "06_qa_reports/cc0_human_male_textured.json",
+      "kind": "qa",
+      "bytes": 463,
+      "sha256": "e953f2eb6f98a469b60a34f160b852e2bc43d0c04944fcec063119feeb766755"
+    },
+    {
+      "path": "06_qa_reports/HSR0040-Body-004_repair.json",
+      "kind": "qa",
+      "bytes": 317,
+      "sha256": "949f01f1c3d0770562df8445f854ede6cb6c6623640e92a2eaee92c145fbc24a"
+    },
+    {
+      "path": "06_qa_reports/human-male.json",
+      "kind": "qa",
+      "bytes": 383,
+      "sha256": "f5df0bd626dbc2fbe4dce7243db1fcf44b04aa6b1612fa20296c77482edf25be"
+    },
+    {
+      "path": "07_release_manifests/asset-inventory.json",
+      "kind": "release",
+      "bytes": 12141,
+      "sha256": "4fe19d67bd0389e68f1c3199fdd7109df8cacaf047654caf77cf182cc1e30abd"
+    },
+    {
+      "path": "07_release_manifests/human.example.jsonl",
+      "kind": "release",
+      "bytes": 361,
+      "sha256": "91a5dd06d30ab06e85f0cfc096596f3e735d69c9a0f662b6f7fd8305a893fad1"
+    },
+    {
+      "path": "07_release_manifests/human.generated.jsonl",
+      "kind": "release",
+      "bytes": 4168,
+      "sha256": "20890f81940d2ba96c66c6f90d5105e4f0137628a01a6512fe00a0d58809dc52"
+    },
+    {
+      "path": "07_release_manifests/samples.example.jsonl",
+      "kind": "release",
+      "bytes": 1015,
+      "sha256": "169b9dace8ed3ed4e3794dfd6956fb383539634605c78c756064509e809cb829"
+    },
+    {
+      "path": "cc0_computer_case.zip",
+      "kind": "source",
+      "bytes": 53804,
+      "sha256": "511a3997adc99f9e981e1de93ad49a75f7c5d3e16ad79e2914e56bfac1b77190"
+    },
+    {
+      "path": "cc0_cpu_models.zip",
+      "kind": "source",
+      "bytes": 24292012,
+      "sha256": "94a788d71ce08a4709ca596063f16fd88ad28f911b31ecfe437be202d7b56220"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/human_female.blend",
+      "kind": "source",
+      "bytes": 2326231,
+      "sha256": "618d2286e8502bc026b1d0a315aee167d8fc3c2639ac4db03be7294ed9570b6e"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/READ_ME.txt",
+      "kind": "unclassified",
+      "bytes": 416,
+      "sha256": "95facfd0aeb8931da2767f9f16a5556af61a163c4682b3530c4ab3b7be66bc74"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_body_1.png",
+      "kind": "source",
+      "bytes": 58846,
+      "sha256": "c35df5160f1903949907546e434c17419a7a177030b85dd7d0feea08c8ff94c4"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_feet_1.png",
+      "kind": "source",
+      "bytes": 12679,
+      "sha256": "c03495e51f54f8ff57e1399b54f8c1f5460ed56d40b479bfdf6b48684bba7325"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_hair_1.png",
+      "kind": "source",
+      "bytes": 129261,
+      "sha256": "69796650b9bcb2b57d7de9259064d99a2eb8cd82ae93f0385fbfd4134522eab6"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_hair_2.png",
+      "kind": "source",
+      "bytes": 196065,
+      "sha256": "d9b993372cd1c7ed96b506943d0b3fe1506358e55640bd48a81394b0f31a45b3"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_hair_3.png",
+      "kind": "source",
+      "bytes": 174217,
+      "sha256": "7b9fca37553aef047291469fb8d162fc5cbfbf8e6eb52232ab74ae42a0fbd351"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_hands_1.png",
+      "kind": "source",
+      "bytes": 10252,
+      "sha256": "9b5334ab3eb6bf328ea0e3e27d35c9c2a2f7c8f99d427fdec1fd0552c8f87313"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_head_1.png",
+      "kind": "source",
+      "bytes": 134901,
+      "sha256": "0535a8ea771c06844501b6e28a76e4d81688bd8f5a8192ef8e6e51fc7eed7caa"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_head_2.png",
+      "kind": "source",
+      "bytes": 129719,
+      "sha256": "e1f01ce3c8fd70a679fcdf642dc5b127f9fc3522b9d06497257a45db471c6146"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_head_3.png",
+      "kind": "source",
+      "bytes": 131499,
+      "sha256": "3e3ee7f35b40859ed32d1cdd6108dae5c3dfc41ea5b8b2282e5bfcafd119c6f1"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_heavy_armor.png",
+      "kind": "source",
+      "bytes": 469418,
+      "sha256": "ca595366b20b285fe7c715681f712579e324b2a4463936f0c590dd3edd8edbe8"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_heavy_boots.png",
+      "kind": "source",
+      "bytes": 157329,
+      "sha256": "398166c30b8a28e2f12cc5b9eff2bc0b730021df16801609704a5c0b45af915f"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_heavy_gloves.png",
+      "kind": "source",
+      "bytes": 208711,
+      "sha256": "0c88c427bb8a25b325c0b99bce85dc6dd625cc5bb9ad2e6ec13c4d52a093b34b"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_heavy_helmet.png",
+      "kind": "source",
+      "bytes": 126226,
+      "sha256": "dd2bdaf2a9d1be151039f017297e2cf2851dc5abd06df295f485f49a19171ce7"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_light_armor.png",
+      "kind": "source",
+      "bytes": 232909,
+      "sha256": "fb25ff3f0bf297c1df8312833b8a64fdb879dff93cf19ae1208eb3ff975ece67"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_light_armor_2.png",
+      "kind": "source",
+      "bytes": 427241,
+      "sha256": "a67fe2d929c4a1edcb930ea08f091e60a4f78919ff773ccdc4cb30dc64a2a9cf"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_light_armor_3.png",
+      "kind": "source",
+      "bytes": 547577,
+      "sha256": "eb837c5d7b6ed94ac916b5d24cff2a7ff05e712c01412480e02052d429b5650a"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_light_armor_4.png",
+      "kind": "source",
+      "bytes": 723262,
+      "sha256": "b2eb109f44a11cf4a63c082dd89b5e7f465ced9f320c115e0e148a5a4fd17528"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_light_boots.png",
+      "kind": "source",
+      "bytes": 203368,
+      "sha256": "c0a183dfb7c311f7db07208e460a4a65e1e8ccbebd6894229c55579abe680f1a"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_light_boots_2.png",
+      "kind": "source",
+      "bytes": 199931,
+      "sha256": "02ee5cd2200c814000e4f1da3de2f5a32ddf1b0b4ea4ca3185b949e0405f2a73"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_light_gloves.png",
+      "kind": "source",
+      "bytes": 281550,
+      "sha256": "8d583700c70a70b522e5fb31a860924fdbd9873c5c4e676c8c8c34aed08c5afa"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_light_gloves_3.png",
+      "kind": "source",
+      "bytes": 63700,
+      "sha256": "0bf07530bfecacabbd0039dce1b95f4df45151efc20524d22a9a4ebf8ce316b0"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_light_helmet.png",
+      "kind": "source",
+      "bytes": 149414,
+      "sha256": "6529207ce739ad8a24f2eee969617cc4d4eae98ae6f163d1d5a03690cb0e4fbe"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_medium_armor.png",
+      "kind": "source",
+      "bytes": 669716,
+      "sha256": "82729ec96b7d017be53ae6a4842cb53ba37618d680c072c368c9bc2bfd1bace6"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_medium_boots.png",
+      "kind": "source",
+      "bytes": 145274,
+      "sha256": "dd8549b65632fe92e32d294ef795c62d19d32534dd7b7a0a25cff79c827861e4"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_medium_gloves.png",
+      "kind": "source",
+      "bytes": 118661,
+      "sha256": "6728c55fa8e2ba84a37afa7cd3eff0a519e8f2f394dd9310d97c561e1e6746ad"
+    },
+    {
+      "path": "cc0_female_modular_rpg/modular_rpg_characters/textures/tex_human_female_medium_helmet.png",
+      "kind": "source",
+      "bytes": 211425,
+      "sha256": "ccf714755b55e0432d0ccb0d4405b9634f37bd8267d9ee657c3b993c1f47cf2f"
+    },
+    {
+      "path": "cc0_female_modular_rpg_characters.7z",
+      "kind": "source",
+      "bytes": 16600670,
+      "sha256": "ef53003c6b29798a634fb27a3f9fc3181a2c02b217689744f2944fc5fcc0fd99"
+    },
+    {
+      "path": "cc0_female_modular_rpg_ik_rig.7z",
+      "kind": "source",
+      "bytes": 1239677,
+      "sha256": "5e97fcbb17c23c6d84e085a54ea32c8a4fe0ee471a1d9b41bff9dead40e75aaf"
+    },
+    {
+      "path": "cc0_human_male_rigged.blend",
+      "kind": "source",
+      "bytes": 2743940,
+      "sha256": "8d0adaf7fe998272dd980697ec450eed1796fe156cdd6dbda55215d9d22ef766"
+    },
+    {
+      "path": "cc0_human_male_rigged.obj",
+      "kind": "source",
+      "bytes": 118330,
+      "sha256": "1c6fab3a1896f7eaa00192f45899339818c483be80b521647a358a5c85beeb5a"
+    },
+    {
+      "path": "cc0_human_male_texture.png",
+      "kind": "source",
+      "bytes": 1332045,
+      "sha256": "6beeaab2942c559d3e1ace61269bcc373091accf8b82d3a08d925842aa1afc77"
+    },
+    {
+      "path": "cc0_vw_corrado.zip",
+      "kind": "source",
+      "bytes": 4185768,
+      "sha256": "8ad9f179da0401bdbfcc0901cf7b320fd46bbd2f0ce524c8ef6080cb01f0b54c"
+    },
+    {
+      "path": "dataset.schema.json",
+      "kind": "unclassified",
+      "bytes": 1067,
+      "sha256": "bb5f383f5545b101d63cf483f6ea40f4f740d3b82c9f1c2878fd460d953b6b38"
+    },
+    {
+      "path": "PIPELINE.md",
+      "kind": "unclassified",
+      "bytes": 1682,
+      "sha256": "9fbb22d1ba9fbdbb47568e6543f52c488471f85a723eecd2f827391fc0d41394"
+    },
+    {
+      "path": "README.md",
+      "kind": "unclassified",
+      "bytes": 3592,
+      "sha256": "62af79faa3f7f39d5100a9a9fa499920752513e5fb68fbc0eb31189f8f5e9f01"
+    }
+  ],
+  "duplicates": []
+}

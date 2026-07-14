@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta
+      name="description"
+      content="3D 애니메이션의 수학 원리(행렬·벡터, 베지에 곡선, 렌더링, 유체)를 마우스로 조작하며 배우는 인터랙티브 시각화"
+    />
+    <title>3D 애니메이션의 수학 — 인터랙티브 데모</title>
+  </head>
+  <body>
+    <div id="loading" class="loading">3D 엔진 불러오는 중…</div>
+    <div id="app" class="app"></div>
+    <nav id="tabs" class="tabs" aria-label="데모 선택"></nav>
+    <aside id="panel" class="panel" aria-label="컨트롤 패널"></aside>
+    <div id="hud" class="hud">
+      🖱️ 드래그: 회전 &nbsp;·&nbsp; 휠: 확대/축소 &nbsp;·&nbsp; 우클릭 드래그: 이동
+    </div>
+    <div id="error-overlay" class="error-overlay" role="alertdialog" hidden></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

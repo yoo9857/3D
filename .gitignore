@@ -1,0 +1,34 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local model weights, virtual environments and raw dataset archives stay out
+# of source control. Keep manifests, QA reports and reproducible scripts.
+ml/.venv/
+ml/TripoSR/
+**/__pycache__/
+*.log
+screen-capture.png
+roundtrip-*.glb
+detail-test*
+AAS.png
+CH.jpg
+training-assets/**/*.zip
+training-assets/**/*.7z
+training-assets/**/*.blend
+training-assets/**/*.max
+training-assets/**/*.fbx
+training-assets/**/*.obj
+training-assets/**/*.glb
+training-assets/**/*.png
+training-assets/**/*.jpg
+training-assets/**/*.jpeg
+training-assets/**/*.exr
+training-assets/01_source_archives/HSRD-100/data/

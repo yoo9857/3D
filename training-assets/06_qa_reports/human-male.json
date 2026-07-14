@@ -1,0 +1,18 @@
+{
+  "path": "training-assets\\cc0_human_male_rigged.obj",
+  "vertices": 1239,
+  "faces": 2018,
+  "watertight": false,
+  "winding_consistent": true,
+  "non_manifold_edges": 456,
+  "degenerate_faces": 0,
+  "bounds": [
+    1.572878,
+    1.748112,
+    0.332115
+  ],
+  "finite_vertices": true,
+  "uv_coverage": 0.994016913274,
+  "texture_present": true,
+  "pass": false
+}

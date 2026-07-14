@@ -1,0 +1,21 @@
+{
+  "path": "training-assets\\05_identity3d_ovoxel\\cc0_human_male_roundtrip.glb",
+  "vertices": 97603,
+  "faces": 181570,
+  "watertight": false,
+  "winding_consistent": false,
+  "non_manifold_edges": 124182,
+  "degenerate_faces": 0,
+  "bounds": [
+    1.0078740119934082,
+    1.0078740119934082,
+    1.0078740119934082
+  ],
+  "finite_vertices": true,
+  "uv_coverage": 0.0,
+  "texture_present": false,
+  "warnings": [
+    "texture_reprojection_required"
+  ],
+  "pass": false
+}

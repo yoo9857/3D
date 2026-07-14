@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Identity3D training record",
+  "type": "object",
+  "required": ["sample_id", "category", "identity_id", "license", "source", "geometry", "views", "qa"],
+  "properties": {
+    "sample_id": {"type": "string"},
+    "category": {"enum": ["human", "character", "vehicle", "hard_surface", "prop", "environment"]},
+    "identity_id": {"type": "string"},
+    "license": {"type": "object", "required": ["name", "source_url", "commercial_ok"]},
+    "source": {"type": "object", "required": ["original_files", "sha256"]},
+    "geometry": {"type": "object", "required": ["normalized_mesh", "units", "coordinate_system", "watertight"]},
+    "views": {"type": "array", "items": {"type": "object", "required": ["rgb", "depth", "normal", "segmentation", "camera"]}},
+    "identity3d": {"type": "object", "properties": {"ovoxel_path": {"type": "string"}, "resolution": {"type": "integer"}}},
+    "qa": {"type": "object", "required": ["missing_textures", "non_manifold", "uv_coverage", "leakage_check"]}
+  }
+}

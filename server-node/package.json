@@ -1,0 +1,15 @@
+{
+  "name": "local-image-to-3d",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CPU-only 로컬 image→3D 서버 (Node, GPU/키 불필요)",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jimp": "^0.22.12",
+    "multer": "^1.4.5-lts.1"
+  }
+}

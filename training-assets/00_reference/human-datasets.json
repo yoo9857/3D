@@ -1,0 +1,78 @@
+{
+  "policy": "Human data is identity-split and consent/license gated before training.",
+  "tiers": {
+    "pretrain": "licensed/research data used for geometry and pose pretraining",
+    "commercial_cleared": "commercial-use rights verified per subject or vendor",
+    "proprietary_consented": "our captured data with signed model release and training consent"
+  },
+  "datasets": [
+    {
+      "id": "humman",
+      "role": "pretrain",
+      "modalities": ["RGB", "point_cloud", "keypoints", "SMPL", "textured_mesh", "4D_motion"],
+      "reported_scale": "1000 subjects / 400000 sequences / 60M frames",
+      "license": "S-Lab License 1.0",
+      "commercial_status": "review_required",
+      "url": "https://motion-x-dataset.github.io/",
+      "identity_split_required": true
+    },
+    {
+      "id": "humbi",
+      "role": "pretrain",
+      "modalities": ["high_res_multiview", "body_expression", "texture"],
+      "reported_scale": "multiview human body expressions",
+      "license": "licensed dataset",
+      "commercial_status": "purchase_or_permission_required",
+      "url": "https://humbi-data.net/",
+      "identity_split_required": true
+    },
+    {
+      "id": "renderpeople",
+      "role": "commercial_cleared",
+      "modalities": ["scanned_mesh", "texture", "rig", "motion"],
+      "reported_scale": "vendor catalog; verify per product",
+      "license": "vendor commercial license",
+      "commercial_status": "purchase_required",
+      "url": "https://renderpeople.com/general-terms-and-conditions/",
+      "identity_split_required": true
+    },
+    {
+      "id": "identity3d_proprietary",
+      "role": "proprietary_consented",
+      "modalities": ["4k_rgb", "depth", "normal", "segmentation", "material_id", "mesh", "rig"],
+      "reported_scale": "target 500 subjects first milestone",
+      "license": "signed model release + training consent",
+      "commercial_status": "cleared_per_subject",
+      "url": "internal",
+      "identity_split_required": true
+    },
+    {
+      "id": "hsrd-100",
+      "role": "pretrain",
+      "modalities": ["3d_human_scan", "mesh", "texture"],
+      "reported_scale": "100 high-quality human scans",
+      "license": "CC BY 4.0 (verify source assets)",
+      "commercial_status": "attribution_and_source_review_required",
+      "url": "https://huggingface.co/datasets/digitalrealitylab/HSRD-100",
+      "identity_split_required": true
+    },
+    {
+      "id": "cloth4d",
+      "role": "pretrain",
+      "modalities": ["textured_clothed_human", "SMPL", "cloth_pattern", "4D_synthetic"],
+      "reported_scale": "public synthetic clothed-human dataset",
+      "license": "dataset terms must be checked before commercial use",
+      "commercial_status": "review_required",
+      "url": "https://openaccess.thecvf.com/content/CVPR2023/papers/Zou_CLOTH4D_A_Dataset_for_Clothed_Human_Reconstruction_CVPR_2023_paper.pdf",
+      "identity_split_required": true
+    }
+  ],
+  "minimum_record": {
+    "identity_id": "stable pseudonymous subject id",
+    "consent_id": "signed release reference; never store raw PII",
+    "demographics": "coarse buckets only, optional and consented",
+    "views": "front/back/left/right/45-degree plus focal-length variation",
+    "passes": ["rgb", "depth", "normal", "segmentation", "material_id", "albedo"],
+    "qa": ["watertight", "uv_coverage", "missing_texture", "rig_integrity", "duplicate_identity"]
+  }
+}

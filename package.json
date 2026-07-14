@@ -1,0 +1,22 @@
+{
+  "name": "math3d-visualizer",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "3D 애니메이션의 수학 원리를 보여주는 인터랙티브 시각화 (Vite + TypeScript + Three.js)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "three": "^0.160.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.160.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
+  }
+}

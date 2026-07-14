@@ -1,0 +1,9 @@
+{
+  "source": "training-assets\\01_source_archives\\HSRD-100\\HSR0040-Body-004-LOD2\\HSR0040-Body-004_LOD2.obj",
+  "target": "training-assets\\03_normalized_scene\\HSR0040-Body-004_LOD2.glb",
+  "vertices": 18307,
+  "faces": 36638,
+  "watertight": true,
+  "winding_consistent": true,
+  "voxel_remeshed": true
+}

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3D 애니메이션의 수학 — 인터랙티브 데모</title>
+<style>
+  :root {
+    --bg: #0b0f1a;
+    --panel: rgba(18, 24, 40, 0.86);
+    --panel-border: rgba(120, 150, 220, 0.18);
+    --accent: #5aa9ff;
+    --accent2: #ff7ac6;
+    --text: #e8edf7;
+    --muted: #9aa7c2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; font-family: "Segoe UI", "Malgun Gothic", sans-serif; background: var(--bg); color: var(--text); }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  /* 상단 탭 */
+  #tabs {
+    position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 6px; z-index: 20;
+    background: var(--panel); border: 1px solid var(--panel-border);
+    padding: 6px; border-radius: 14px; backdrop-filter: blur(10px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    flex-wrap: wrap; justify-content: center; max-width: 94vw;
+  }
+  .tab {
+    border: none; background: transparent; color: var(--muted);
+    padding: 9px 14px; border-radius: 10px; cursor: pointer;
+    font-size: 14px; font-weight: 600; transition: all .18s; white-space: nowrap;
+  }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+  .tab.active { color: #fff; background: linear-gradient(135deg, var(--accent), #7d5bff); box-shadow: 0 4px 14px rgba(90,169,255,0.4); }
+
+  /* 좌측 컨트롤 패널 */
+  #panel {
+    position: fixed; top: 78px; left: 14px; width: 320px; max-width: calc(100vw - 28px);
+    max-height: calc(100vh - 100px); overflow-y: auto; z-index: 15;
+    background: var(--panel); border: 1px solid var(--panel-border);
+    border-radius: 16px; padding: 18px; backdrop-filter: blur(12px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  }
+  #panel::-webkit-scrollbar { width: 8px; }
+  #panel::-webkit-scrollbar-thumb { background: rgba(120,150,220,0.35); border-radius: 4px; }
+  .p-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .p-desc { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 14px; }
+  .formula { font-family: "Cambria Math", "Times New Roman", serif; font-style: italic;
+    background: rgba(90,169,255,0.08); border: 1px solid rgba(90,169,255,0.2);
+    border-radius: 8px; padding: 8px 10px; font-size: 13px; margin-bottom: 14px; color: #cfe0ff; line-height: 1.7; }
+  .ctrl { margin-bottom: 13px; }
+  .ctrl label { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-bottom: 5px; }
+  .ctrl label b { color: var(--accent); font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; height: 5px; -webkit-appearance: none; background: rgba(255,255,255,0.12); border-radius: 3px; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 8px rgba(90,169,255,0.6); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .mini-btn { flex: 1; min-width: 70px; padding: 9px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.04); color: var(--text); border-radius: 9px; cursor: pointer; font-size: 12.5px; font-weight: 600; transition: all .15s; }
+  .mini-btn:hover { background: rgba(90,169,255,0.15); border-color: var(--accent); }
+  .mini-btn.on { background: linear-gradient(135deg, var(--accent), #7d5bff); border-color: transparent; color:#fff; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-bottom: 11px; }
+  .switch { position: relative; width: 42px; height: 22px; }
+  .switch input { display: none; }
+  .slider-sw { position: absolute; inset: 0; background: rgba(255,255,255,0.15); border-radius: 22px; cursor: pointer; transition: .2s; }
+  .slider-sw:before { content:""; position:absolute; width:16px; height:16px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+  .switch input:checked + .slider-sw { background: var(--accent); }
+  .switch input:checked + .slider-sw:before { transform: translateX(20px); }
+  .matrix { font-family: "Consolas", monospace; font-size: 11px; background: rgba(0,0,0,0.35); border-radius: 8px; padding: 10px; color: #8fe3b0; line-height: 1.6; white-space: pre; overflow-x: auto; }
+  #fileInput { display: none; }
+  .upload-btn { display:block; width:100%; text-align:center; padding: 12px; border-radius: 10px; cursor:pointer; font-weight:700; background: linear-gradient(135deg, var(--accent2), #ff9f5b); color:#fff; margin-bottom: 12px; border:none; }
+  .hint { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+
+  #hud { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 12px; color: var(--muted); background: var(--panel); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--panel-border); backdrop-filter: blur(8px); }
+  #loading { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: var(--bg); z-index: 100; font-size: 15px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="loading">3D 엔진 불러오는 중…</div>
+<div id="app"></div>
+
+<div id="tabs">
+  <button class="tab active" data-mode="transform">행렬·벡터 변환</button>
+  <button class="tab" data-mode="bezier">베지에 곡선</button>
+  <button class="tab" data-mode="lighting">빛·그림자</button>
+  <button class="tab" data-mode="fluid">물·연기</button>
+  <button class="tab" data-mode="image">2D → 3D 이미지</button>
+</div>
+
+<div id="panel"></div>
+<div id="hud">🖱️ 드래그: 회전 &nbsp;·&nbsp; 휠: 확대/축소 &nbsp;·&nbsp; 우클릭 드래그: 이동</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+document.getElementById('loading').style.display = 'none';
+
+// ===== 기본 세팅 =====
+const app = document.getElementById('app');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b0f1a);
+scene.fog = new THREE.Fog(0x0b0f1a, 30, 90);
+
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 500);
+camera.position.set(8, 7, 12);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+app.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+
+// 공통 조명 (모드별로 조정)
+const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambient);
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+keyLight.position.set(10, 16, 8);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(2048, 2048);
+keyLight.shadow.camera.near = 1; keyLight.shadow.camera.far = 60;
+keyLight.shadow.camera.left = -25; keyLight.shadow.camera.right = 25;
+keyLight.shadow.camera.top = 25; keyLight.shadow.camera.bottom = -25;
+scene.add(keyLight);
+const fillLight = new THREE.DirectionalLight(0x88aaff, 0.4);
+fillLight.position.set(-8, 5, -10);
+scene.add(fillLight);
+
+// 바닥 + 그리드 (모드별 표시)
+const groundGeo = new THREE.PlaneGeometry(80, 80);
+const groundMat = new THREE.MeshStandardMaterial({ color: 0x141a2b, roughness: 0.95, metalness: 0.0 });
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -0.01;
+ground.receiveShadow = true;
+scene.add(ground);
+const grid = new THREE.GridHelper(80, 40, 0x2a3550, 0x1a2338);
+scene.add(grid);
+
+// ===== 상태 관리 =====
+const clock = new THREE.Clock();
+let current = { objects: [], update: null, dispose: null };
+const panel = document.getElementById('panel');
+
+function clearMode() {
+  if (current.dispose) current.dispose();
+  current.objects.forEach(o => {
+    scene.remove(o);
+    o.traverse && o.traverse(c => {
+      if (c.geometry) c.geometry.dispose();
+      if (c.material) (Array.isArray(c.material)?c.material:[c.material]).forEach(m=>m.dispose());
+    });
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());
+  });
+  current = { objects: [], update: null, dispose: null };
+  // 조명/배경 리셋
+  ambient.intensity = 0.5;
+  keyLight.intensity = 1.0;
+  keyLight.position.set(10,16,8);
+  ground.visible = true; grid.visible = true;
+}
+function add(obj) { scene.add(obj); current.objects.push(obj); return obj; }
+
+// 슬라이더 헬퍼
+function slider(id, label, min, max, val, step) {
+  return `<div class="ctrl"><label>${label} <b id="${id}-v">${val}</b></label>
+    <input type="range" id="${id}" min="${min}" max="${max}" value="${val}" step="${step||0.01}"></div>`;
+}
+function bind(id, cb, fmt) {
+  const el = document.getElementById(id), out = document.getElementById(id+'-v');
+  const run = () => { const v = parseFloat(el.value); if(out) out.textContent = fmt?fmt(v):v; cb(v); };
+  el.addEventListener('input', run); run();
+}
+
+// ========================================================
+// 1) 행렬 · 벡터 변환
+// ========================================================
+function initTransform() {
+  const geo = new THREE.BoxGeometry(3,3,3);
+  const mats = [0x5aa9ff,0xff7ac6,0x7d5bff,0x5be3a0,0xffcf5b,0xff6b6b].map(c=>
+    new THREE.MeshStandardMaterial({color:c, roughness:0.4, metalness:0.2}));
+  const cube = new THREE.Mesh(geo, mats);
+  cube.castShadow = true; cube.position.y = 2;
+  add(cube);
+  // 원본 자리 표시 (반투명)
+  const ghost = new THREE.Mesh(new THREE.BoxGeometry(3,3,3), new THREE.MeshBasicMaterial({color:0x5aa9ff, wireframe:true, transparent:true, opacity:0.15}));
+  ghost.position.y = 2; add(ghost);
+  const axes = new THREE.AxesHelper(6); axes.position.y=0.02; add(axes);
+
+  const st = { tx:0,ty:2,tz:0, rx:0,ry:0,rz:0, s:1 };
+  panel.innerHTML = `
+    <div class="p-title">행렬 · 벡터 변환</div>
+    <div class="p-desc">3D의 모든 점(정점)은 벡터입니다. 4×4 <b>변환 행렬</b>을 벡터에 곱하면 이동·회전·크기변환이 한 번에 계산됩니다. 슬라이더를 움직이면 아래 행렬이 실시간으로 바뀝니다.</div>
+    <div class="formula">v′ = M · v<br>(M = 이동 × 회전 × 크기)</div>
+    ${slider('tx','이동 X',-8,8,0)}
+    ${slider('ty','이동 Y',0,8,2)}
+    ${slider('tz','이동 Z',-8,8,0)}
+    ${slider('rx','회전 X (°)',0,360,0,1)}
+    ${slider('ry','회전 Y (°)',0,360,0,1)}
+    ${slider('rz','회전 Z (°)',0,360,0,1)}
+    ${slider('s','크기',0.3,2.5,1)}
+    <label style="font-size:12.5px;color:var(--muted);margin-bottom:6px;display:block;">현재 변환 행렬 M</label>
+    <div class="matrix" id="matdisp"></div>`;
+
+  const apply = () => {
+    cube.position.set(st.tx, st.ty, st.tz);
+    cube.rotation.set(st.rx*Math.PI/180, st.ry*Math.PI/180, st.rz*Math.PI/180);
+    cube.scale.setScalar(st.s);
+    cube.updateMatrix();
+    const e = cube.matrix.elements; // column-major
+    let s = '';
+    for (let r=0;r<4;r++){ for(let c=0;c<4;c++){ s += (e[c*4+r]>=0?' ':'') + e[c*4+r].toFixed(2)+'  '; } s+='\n'; }
+    document.getElementById('matdisp').textContent = s;
+  };
+  bind('tx', v=>{st.tx=v;apply();});
+  bind('ty', v=>{st.ty=v;apply();});
+  bind('tz', v=>{st.tz=v;apply();});
+  bind('rx', v=>{st.rx=v;apply();}, v=>v+'°');
+  bind('ry', v=>{st.ry=v;apply();}, v=>v+'°');
+  bind('rz', v=>{st.rz=v;apply();}, v=>v+'°');
+  bind('s', v=>{st.s=v;apply();});
+  apply();
+}
+
+// ========================================================
+// 2) 베지에 곡선
+// ========================================================
+function initBezier() {
+  const P = [ new THREE.Vector3(-8,0.5,-4), new THREE.Vector3(-3,7,4), new THREE.Vector3(4,7,-4), new THREE.Vector3(8,0.5,4) ];
+  const curve = new THREE.CubicBezierCurve3(P[0],P[1],P[2],P[3]);
+
+  let tube = null;
+  function rebuildTube() {
+    if (tube) { scene.remove(tube); tube.geometry.dispose(); tube.material.dispose(); }
+    const g = new THREE.TubeGeometry(curve, 120, 0.12, 8, false);
+    tube = new THREE.Mesh(g, new THREE.MeshStandardMaterial({color:0x5aa9ff, emissive:0x1a4a80, roughness:0.3}));
+    tube.castShadow = true; add(tube);
+  }
+  rebuildTube();
+
+  // 제어점 구
+  const cpColors = [0x5be3a0,0xff7ac6,0xffcf5b,0x5be3a0];
+  const cps = P.map((p,i)=>{
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.35,20,20), new THREE.MeshStandardMaterial({color:cpColors[i], emissive:cpColors[i], emissiveIntensity:0.3}));
+    m.position.copy(p); m.castShadow=true; add(m); return m;
+  });
+  // 제어 다각형 선
+  const polyGeo = new THREE.BufferGeometry().setFromPoints(P);
+  const poly = new THREE.Line(polyGeo, new THREE.LineDashedMaterial({color:0x556080, dashSize:0.4, gapSize:0.25}));
+  poly.computeLineDistances(); add(poly);
+
+  // 움직이는 물체
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(0.55,24,24), new THREE.MeshStandardMaterial({color:0xff7ac6, emissive:0xff2f9e, emissiveIntensity:0.5, roughness:0.2, metalness:0.3}));
+  ball.castShadow = true; add(ball);
+
+  const st = { speed:0.25, p1y:7, p2y:7 };
+  panel.innerHTML = `
+    <div class="p-title">베지에 곡선 애니메이션</div>
+    <div class="p-desc">직선으로는 자연스러운 움직임을 못 만듭니다. <b>매개변수 t(0→1)</b>를 곡선 방정식에 넣으면 부드러운 경로가 나옵니다. 초록=시작/끝점, 분홍·노랑=제어점입니다.</div>
+    <div class="formula">B(t) = (1−t)³P₀ + 3(1−t)²t·P₁<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 3(1−t)t²·P₂ + t³P₃</div>
+    ${slider('speed','속도',0.05,1,0.25)}
+    ${slider('p1y','제어점 1 높이',-2,10,7)}
+    ${slider('p2y','제어점 2 높이',-2,10,7)}
+    <div class="ctrl"><label>진행 t <b id="tval">0.00</b></label></div>`;
+
+  bind('speed', v=>st.speed=v);
+  bind('p1y', v=>{ st.p1y=v; P[1].y=v; cps[1].position.y=v; curve.v1.y=v; polyGeo.setFromPoints(P); poly.computeLineDistances(); rebuildTube(); });
+  bind('p2y', v=>{ st.p2y=v; P[2].y=v; cps[2].position.y=v; curve.v2.y=v; polyGeo.setFromPoints(P); poly.computeLineDistances(); rebuildTube(); });
+
+  let t = 0;
+  current.update = (dt) => {
+    t = (t + dt*st.speed) % 1;
+    const pt = curve.getPoint(t);
+    ball.position.copy(pt);
+    document.getElementById('tval').textContent = t.toFixed(2);
+  };
+}
+
+// ========================================================
+// 3) 빛 · 그림자 (렌더링)
+// ========================================================
+function initLighting() {
+  const shapes = [];
+  const specs = [
+    {g:new THREE.SphereGeometry(1.6,32,32), c:0x5aa9ff, p:[-4,1.6,0]},
+    {g:new THREE.TorusKnotGeometry(1.1,0.4,120,16), c:0xff7ac6, p:[0,2,0]},
+    {g:new THREE.IcosahedronGeometry(1.6,0), c:0xffcf5b, p:[4,1.6,0]},
+    {g:new THREE.CylinderGeometry(1,1,3,32), c:0x5be3a0, p:[0,1.5,-4]},
+  ];
+  specs.forEach(s=>{
+    const m = new THREE.Mesh(s.g, new THREE.MeshStandardMaterial({color:s.c, roughness:0.35, metalness:0.4}));
+    m.position.set(...s.p); m.castShadow=true; m.receiveShadow=true; add(m); shapes.push(m);
+  });
+  // 빛 위치 표시 구
+  const lightMarker = new THREE.Mesh(new THREE.SphereGeometry(0.5,16,16), new THREE.MeshBasicMaterial({color:0xffee88}));
+  add(lightMarker);
+
+  const st = { angle:0.6, height:16, intensity:1.0, ambient:0.35, shadows:true, orbit:true };
+  ambient.intensity = st.ambient;
+  keyLight.intensity = st.intensity;
+
+  panel.innerHTML = `
+    <div class="p-title">빛 · 그림자 (렌더링)</div>
+    <div class="p-desc">화면의 각 픽셀 색은 <b>렌더링 방정식</b>으로 정해집니다. 표면이 받은 빛과 반사·산란을 적분해서 밝기를 계산하죠. 그림자는 빛이 물체에 막혀 도달하지 못하는 영역입니다.</div>
+    <div class="formula">Lₒ = Lₑ + ∫ f·Lᵢ·(n·ω) dω</div>
+    <div class="toggle-row"><span>빛이 원을 그리며 이동</span>
+      <label class="switch"><input type="checkbox" id="orbit" checked><span class="slider-sw"></span></label></div>
+    <div class="toggle-row"><span>그림자 켜기</span>
+      <label class="switch"><input type="checkbox" id="shadows" checked><span class="slider-sw"></span></label></div>
+    ${slider('height','빛 높이',5,25,16,1)}
+    ${slider('intensity','빛 세기',0,2.5,1.0)}
+    ${slider('ambient','주변광 (전체 밝기)',0,1.2,0.35)}`;
+
+  document.getElementById('orbit').addEventListener('change', e=>st.orbit=e.target.checked);
+  document.getElementById('shadows').addEventListener('change', e=>{
+    st.shadows=e.target.checked; renderer.shadowMap.enabled=st.shadows;
+    scene.traverse(o=>{ if(o.isMesh){o.castShadow = st.shadows && o!==ground; o.receiveShadow=true;} });
+    shapes.forEach(m=>m.material.needsUpdate=true); ground.material.needsUpdate=true;
+  });
+  bind('height', v=>st.height=v);
+  bind('intensity', v=>{st.intensity=v; keyLight.intensity=v;});
+  bind('ambient', v=>{st.ambient=v; ambient.intensity=v;});
+
+  current.update = (dt, el) => {
+    if (st.orbit) st.angle += dt*0.5;
+    const x = Math.cos(st.angle)*14, z = Math.sin(st.angle)*14;
+    keyLight.position.set(x, st.height, z);
+    lightMarker.position.set(x, st.height, z);
+    shapes[1].rotation.y += dt*0.4; shapes[1].rotation.x += dt*0.2;
+  };
+  current.dispose = () => { renderer.shadowMap.enabled = true; };
+}
+
+// ========================================================
+// 4) 물 · 연기 (유체 시뮬레이션)
+// ========================================================
+function initFluid() {
+  let mode = 'water';
+  const st = { amp:0.8, speed:1.0, choppy:1.0 };
+
+  // --- 물 표면 ---
+  const seg = 80, size = 40;
+  const waterGeo = new THREE.PlaneGeometry(size, size, seg, seg);
+  waterGeo.rotateX(-Math.PI/2);
+  const waterMat = new THREE.MeshStandardMaterial({color:0x2a7fff, roughness:0.15, metalness:0.6, transparent:true, opacity:0.9, side:THREE.DoubleSide, flatShading:false});
+  const water = new THREE.Mesh(waterGeo, waterMat);
+  water.receiveShadow = true; water.position.y=1;
+  const base = waterGeo.attributes.position.array.slice();
+
+  // --- 연기 파티클 ---
+  const N = 1400;
+  const smokeGeo = new THREE.BufferGeometry();
+  const pos = new Float32Array(N*3), seed = new Float32Array(N);
+  for (let i=0;i<N;i++){ pos[i*3]= (Math.random()-0.5)*2; pos[i*3+1]=Math.random()*14; pos[i*3+2]=(Math.random()-0.5)*2; seed[i]=Math.random()*Math.PI*2; }
+  smokeGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const smokeMat = new THREE.PointsMaterial({color:0xbcd0ff, size:0.55, transparent:true, opacity:0.35, depthWrite:false, blending:THREE.AdditiveBlending});
+  const smoke = new THREE.Points(smokeGeo, smokeMat);
+
+  function setMode(m){
+    mode=m;
+    document.getElementById('btn-water').classList.toggle('on', m==='water');
+    document.getElementById('btn-smoke').classList.toggle('on', m==='smoke');
+    if (m==='water'){ if(!water.parent) add(water); scene.remove(smoke); }
+    else { if(!smoke.parent) add(smoke); scene.remove(water); }
+  }
+
+  panel.innerHTML = `
+    <div class="p-title">물 · 연기 (유체)</div>
+    <div class="p-desc">유체의 움직임은 <b>나비에–스토크스 방정식</b>으로 기술됩니다. 속도장의 시간 변화를 매 프레임 적분해서 물결과 소용돌이를 만듭니다. (여기선 실시간용 근사 파동/난류 모델을 사용)</div>
+    <div class="formula">∂u/∂t + (u·∇)u = −∇p/ρ + ν∇²u + f</div>
+    <div class="btn-row">
+      <button class="mini-btn on" id="btn-water">💧 물결</button>
+      <button class="mini-btn" id="btn-smoke">💨 연기</button>
+    </div>
+    ${slider('amp','파동 높이 / 상승력',0.1,2,0.8)}
+    ${slider('speed','흐름 속도',0.2,3,1.0)}
+    ${slider('choppy','거칠기 / 난류',0.2,2.5,1.0)}`;
+
+  document.getElementById('btn-water').addEventListener('click', ()=>setMode('water'));
+  document.getElementById('btn-smoke').addEventListener('click', ()=>setMode('smoke'));
+  bind('amp', v=>st.amp=v);
+  bind('speed', v=>st.speed=v);
+  bind('choppy', v=>st.choppy=v);
+  add(water);
+
+  const parr = waterGeo.attributes.position.array;
+  current.update = (dt, el) => {
+    if (mode==='water') {
+      const t = el*st.speed;
+      for (let i=0;i<parr.length;i+=3){
+        const x=base[i], z=base[i+2];
+        let y = Math.sin(x*0.3 + t)*0.5 + Math.cos(z*0.35 + t*0.8)*0.5;
+        y += Math.sin((x+z)*0.5*st.choppy + t*1.3)*0.3;
+        y += Math.sin(Math.sqrt(x*x+z*z)*0.6 - t*1.5)*0.25*st.choppy;
+        parr[i+1] = y*st.amp;
+      }
+      waterGeo.attributes.position.needsUpdate = true;
+      waterGeo.computeVertexNormals();
+    } else {
+      const t = el*st.speed;
+      const p = smokeGeo.attributes.position.array;
+      for (let i=0;i<N;i++){
+        p[i*3+1] += dt*st.amp*1.5;
+        const s = seed[i];
+        p[i*3]   += Math.sin(t*0.8 + s + p[i*3+1]*0.3)*dt*st.choppy;
+        p[i*3+2] += Math.cos(t*0.7 + s*1.3 + p[i*3+1]*0.3)*dt*st.choppy;
+        if (p[i*3+1] > 14){ p[i*3]=(Math.random()-0.5)*2; p[i*3+1]=0; p[i*3+2]=(Math.random()-0.5)*2; }
+      }
+      smokeGeo.attributes.position.needsUpdate = true;
+    }
+  };
+  current.dispose = () => { scene.remove(smoke); };
+}
+
+// ========================================================
+// 5) 2D 이미지 → 3D
+// ========================================================
+function initImage() {
+  ground.visible = false; grid.visible = false;
+  let mesh = null;
+  const st = { depth:4, style:'voxel', res:96 };
+
+  panel.innerHTML = `
+    <div class="p-title">2D 이미지 → 3D</div>
+    <div class="p-desc">사진의 <b>모든 픽셀</b>을 읽어 (x, y) 위치에 배치하고, <b>밝기</b>를 높이(z)로 바꿔 3D로 세웁니다. 각 픽셀의 원래 색상은 그대로 유지됩니다.</div>
+    <label class="upload-btn" for="fileInput">📁 이미지 파일 선택 (PNG/JPG)</label>
+    <input type="file" id="fileInput" accept="image/*">
+    <div class="btn-row">
+      <button class="mini-btn on" id="s-voxel">복셀(큐브)</button>
+      <button class="mini-btn" id="s-point">포인트</button>
+    </div>
+    ${slider('depth','높이 강조 (밝기→깊이)',0,12,4,0.1)}
+    ${slider('res','해상도',32,160,96,1)}
+    <div class="hint">밝은 픽셀일수록 앞으로 튀어나옵니다. 해상도가 높을수록 정밀하지만 무거워집니다. 이미지를 다시 선택하면 재생성됩니다.</div>`;
+
+  let lastImg = null;
+  document.getElementById('s-voxel').addEventListener('click', ()=>{ st.style='voxel'; toggleStyle(); if(lastImg) build(lastImg); });
+  document.getElementById('s-point').addEventListener('click', ()=>{ st.style='point'; toggleStyle(); if(lastImg) build(lastImg); });
+  function toggleStyle(){ document.getElementById('s-voxel').classList.toggle('on',st.style==='voxel'); document.getElementById('s-point').classList.toggle('on',st.style==='point'); }
+  bind('depth', v=>{ st.depth=v; if(mesh && mesh.userData.rebuild) mesh.userData.rebuild(); });
+  bind('res', v=>{ st.res=Math.round(v); if(lastImg) build(lastImg); }, v=>Math.round(v));
+
+  document.getElementById('fileInput').addEventListener('change', e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const img = new Image();
+    img.onload = ()=>{ lastImg=img; build(img); };
+    img.src = URL.createObjectURL(f);
+  });
+
+  function readPixels(img) {
+    const maxDim = st.res;
+    let w = img.width, h = img.height;
+    const scale = Math.min(maxDim/w, maxDim/h, 1) || maxDim/Math.max(w,h);
+    w = Math.max(1, Math.round(w*scale)); h = Math.max(1, Math.round(h*scale));
+    const cv = document.createElement('canvas'); cv.width=w; cv.height=h;
+    const cx = cv.getContext('2d'); cx.drawImage(img,0,0,w,h);
+    return { data: cx.getImageData(0,0,w,h).data, w, h };
+  }
+
+  function build(img) {
+    if (mesh){ scene.remove(mesh); current.objects = current.objects.filter(o=>o!==mesh);
+      mesh.geometry && mesh.geometry.dispose(); mesh.material && mesh.material.dispose(); mesh=null; }
+    const { data, w, h } = readPixels(img);
+    const cell = 20 / Math.max(w,h); // 전체 폭 ~20 유지
+    const ox = -w*cell/2, oy = h*cell/2;
+    const color = new THREE.Color();
+
+    if (st.style === 'voxel') {
+      const geo = new THREE.BoxGeometry(cell*0.92, cell*0.92, cell*0.92);
+      const mat = new THREE.MeshStandardMaterial({roughness:0.6, metalness:0.1});
+      const inst = new THREE.InstancedMesh(geo, mat, w*h);
+      inst.castShadow = true;
+      const dummy = new THREE.Object3D();
+      const applyHeights = ()=>{
+        let idx=0;
+        for (let y=0;y<h;y++) for (let x=0;x<w;x++){
+          const i=(y*w+x)*4;
+          const r=data[i]/255, g=data[i+1]/255, b=data[i+2]/255, a=data[i+3]/255;
+          const lum = 0.299*r+0.587*g+0.114*b;
+          dummy.position.set(ox + x*cell, oy - y*cell, lum*st.depth);
+          dummy.scale.setScalar(a<0.1?0.001:1);
+          dummy.updateMatrix();
+          inst.setMatrixAt(idx, dummy.matrix);
+          inst.setColorAt(idx, color.setRGB(r,g,b));
+          idx++;
+        }
+        inst.instanceMatrix.needsUpdate = true;
+        if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
+      };
+      applyHeights();
+      inst.userData.rebuild = applyHeights;
+      inst.position.z = -st.depth/2;
+      mesh = inst;
+    } else {
+      const geo = new THREE.BufferGeometry();
+      const positions = new Float32Array(w*h*3);
+      const colors = new Float32Array(w*h*3);
+      const build2 = ()=>{
+        let k=0;
+        for (let y=0;y<h;y++) for (let x=0;x<w;x++){
+          const i=(y*w+x)*4;
+          const r=data[i]/255, g=data[i+1]/255, b=data[i+2]/255;
+          const lum = 0.299*r+0.587*g+0.114*b;
+          positions[k]=ox+x*cell; positions[k+1]=oy-y*cell; positions[k+2]=lum*st.depth - st.depth/2;
+          colors[k]=r; colors[k+1]=g; colors[k+2]=b; k+=3;
+        }
+        geo.attributes.position.needsUpdate = true;
+      };
+      geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+      geo.setAttribute('color', new THREE.BufferAttribute(colors,3));
+      build2();
+      const pmat = new THREE.PointsMaterial({size:cell*1.3, vertexColors:true, sizeAttenuation:true});
+      const pts = new THREE.Points(geo, pmat);
+      pts.userData.rebuild = build2;
+      mesh = pts;
+    }
+    add(mesh);
+    // 카메라 살짝 정면으로
+    controls.target.set(0,0,0);
+  }
+
+  // 초기 안내 텍스트 대신 데모용 그라디언트 이미지 생성
+  const demo = document.createElement('canvas'); demo.width=64; demo.height=64;
+  const dcx = demo.getContext('2d');
+  const grad = dcx.createLinearGradient(0,0,64,64);
+  grad.addColorStop(0,'#5aa9ff'); grad.addColorStop(0.5,'#ff7ac6'); grad.addColorStop(1,'#ffcf5b');
+  dcx.fillStyle=grad; dcx.fillRect(0,0,64,64);
+  dcx.fillStyle='#0b0f1a'; dcx.font='bold 22px sans-serif'; dcx.textAlign='center';
+  dcx.fillText('3D', 32, 40);
+  const demoImg = new Image(); demoImg.onload=()=>{ lastImg=demoImg; build(demoImg); }; demoImg.src = demo.toDataURL();
+
+  current.dispose = ()=>{ ground.visible=true; grid.visible=true; };
+}
+
+// ===== 모드 전환 =====
+const MODES = { transform:initTransform, bezier:initBezier, lighting:initLighting, fluid:initFluid, image:initImage };
+function switchMode(name) {
+  clearMode();
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.mode===name));
+  controls.target.set(0,2,0);
+  MODES[name]();
+}
+document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=>switchMode(t.dataset.mode)));
+
+// ===== 렌더 루프 =====
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const el = clock.elapsedTime;
+  if (current.update) current.update(dt, el);
+  controls.update();
+  renderer.render(scene, camera);
+}
+window.addEventListener('resize', ()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+switchMode('transform');
+animate();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# TripoSR 로컬 추론(CPU) 의존성 핀.
+# 중요: transformers 5.x 는 ViT 파라미터 이름을 바꿔(TripoSR ckpt 의 DINO 키와 불일치)
+#       load_state_dict 가 실패한다. 반드시 4.x 를 사용할 것(5.0 직전 마지막 = 4.49.0).
+#       numpy 2.x 호환을 위해 4.43+ 필요 → 4.49.0 이 안전한 지점.
+transformers==4.49.0
+torch==2.13.0
+torchvision==0.28.0
+trimesh==4.12.2
+rembg==2.0.76
+onnxruntime==1.27.0
+omegaconf==2.3.1
+einops==0.8.2
+pillow==12.2.0
+numpy==2.4.4
+PyMCubes==0.1.6
+huggingface-hub==0.36.2
