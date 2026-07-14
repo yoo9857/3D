@@ -13,6 +13,23 @@ const LS_KEY = 'gen3d.apiKey';
 const TARGET_SIZE = 12;
 
 type Method = 'ai' | 'server';
+type InspectionMode = 'pbr' | 'unlit' | 'normal' | 'wireframe';
+
+interface IdentityJob {
+  id: string;
+  status: 'queued' | 'running' | 'complete' | 'failed';
+  progress: number;
+  stage: string;
+  resultUrl: string | null;
+  error: string | null;
+  quality: { score: number } | null;
+  capabilities: { multiViewGeometryFusion: boolean };
+}
+
+function findTexture(material: THREE.Material | THREE.Material[] | undefined): THREE.Texture | null {
+  const first = Array.isArray(material) ? material[0] : material;
+  return first && 'map' in first ? ((first as THREE.MeshStandardMaterial).map ?? null) : null;
+}
 
 /**
  * Full 3D.
@@ -41,6 +58,7 @@ export class Generate3DMode implements Mode {
   private endpoint = '';
   private apiKey = '';
   private busy = false;
+  private inspectionMode: InspectionMode = 'pbr';
 
   private depthScale = 7;
   private invert = false;
@@ -110,6 +128,14 @@ export class Generate3DMode implements Mode {
     });
 
     panel.uploadButton({
+      label: '정면·측면·후면 이미지 선택 (최대 4장)',
+      accept: 'image/*',
+      multiple: true,
+      onFile: (file) => void this.runServerViews([file]),
+      onFiles: (files) => void this.runServerViews(files.slice(0, 4)),
+    });
+
+    panel.uploadButton({
       label: '📦 GLB/GLTF 파일 직접 열기',
       accept: '.glb,.gltf,model/gltf-binary,model/gltf+json',
       onFile: (file) => this.loadModelFile(file),
@@ -158,6 +184,18 @@ export class Generate3DMode implements Mode {
       onChange: (v) => {
         this.apiKey = v;
         localStorage.setItem(LS_KEY, v);
+      },
+    });
+
+    panel.buttonGroup({
+      buttons: [
+        { id: 'pbr', label: 'PBR' }, { id: 'unlit', label: 'Unlit' },
+        { id: 'normal', label: 'Normal' }, { id: 'wireframe', label: 'Wireframe' },
+      ],
+      active: this.inspectionMode,
+      onSelect: (id) => {
+        this.inspectionMode = id as InspectionMode;
+        this.applyInspectionMode();
       },
     });
 
@@ -289,6 +327,46 @@ export class Generate3DMode implements Mode {
       });
   }
 
+  private async runServerViews(files: File[]): Promise<void> {
+    if (!this.endpoint || this.busy || files.length === 0) return;
+    this.busy = true;
+    this.exports?.setEnabledAll(false);
+    try {
+      const endpoint = new URL(this.endpoint);
+      const jobsUrl = `${endpoint.origin}/v2/jobs`;
+      const form = new FormData();
+      for (const file of files) form.append('images', file, file.name);
+      form.append('preset', 'production');
+      const headers: HeadersInit = {};
+      if (this.apiKey) headers.Authorization = `Bearer ${this.apiKey}`;
+      this.statusEl?.set(`업로드 중: ${files.length}개 뷰`);
+      const created = await fetch(jobsUrl, { method: 'POST', body: form, headers });
+      if (!created.ok) throw new Error(`작업 생성 실패 (${created.status}): ${await created.text()}`);
+      let job = await created.json() as IdentityJob;
+      const deadline = Date.now() + 20 * 60 * 1000;
+      while (job.status === 'queued' || job.status === 'running') {
+        if (Date.now() > deadline) throw new Error('고품질 생성 제한 시간(20분)을 초과했습니다.');
+        this.statusEl?.set(`${job.stage} · ${Math.round(job.progress * 100)}%`);
+        await new Promise((resolve) => window.setTimeout(resolve, 1000));
+        const status = await fetch(`${jobsUrl}/${job.id}`, { headers });
+        if (!status.ok) throw new Error(`작업 상태 조회 실패 (${status.status})`);
+        job = await status.json() as IdentityJob;
+      }
+      if (job.status !== 'complete' || !job.resultUrl) throw new Error(job.error || '생성 작업 실패');
+      const result = await fetch(`${endpoint.origin}${job.resultUrl}`, { headers });
+      if (!result.ok) throw new Error(`결과 다운로드 실패 (${result.status})`);
+      await this.parseAndShow(await result.arrayBuffer());
+      const score = job.quality ? ` · QA ${Math.round(job.quality.score * 100)}%` : '';
+      const fusion = job.capabilities.multiViewGeometryFusion ? '다중뷰 융합' : '단일뷰 형상 기준';
+      this.statusEl?.set(`생성 완료 · ${fusion}${score}`);
+    } catch (err) {
+      showError('Identity3D 생성 실패', err instanceof Error ? err.message : String(err));
+      this.statusEl?.set('생성 실패 · 서버와 품질 보고서를 확인하세요.');
+    } finally {
+      this.busy = false;
+    }
+  }
+
   private loadModelFile(file: File): void {
     this.statusEl?.set('GLB/GLTF 읽는 중…');
     file
@@ -359,6 +437,7 @@ export class Generate3DMode implements Mode {
           }
         }
         // 노멀이 없으면 각지거나 뚫려 보임 → 없을 때만 계산.
+        m.userData.identityOriginalMaterial = m.material;
         if (m.geometry && !m.geometry.getAttribute('normal')) m.geometry.computeVertexNormals();
       }
     });
@@ -377,7 +456,28 @@ export class Generate3DMode implements Mode {
 
     this.container.add(wrapper);
     this.loaded = wrapper;
+    this.applyInspectionMode();
     this.exports?.setEnabledAll(true);
+  }
+
+  private applyInspectionMode(root = this.loaded): void {
+    if (!root) return;
+    root.traverse((node) => {
+      const mesh = node as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const original = mesh.userData.identityOriginalMaterial as THREE.Material | THREE.Material[] | undefined;
+      const current = mesh.material;
+      if (current !== original) {
+        for (const material of Array.isArray(current) ? current : [current]) material.dispose();
+      }
+      if (this.inspectionMode === 'pbr') mesh.material = original ?? current;
+      else if (this.inspectionMode === 'normal') mesh.material = new THREE.MeshNormalMaterial();
+      else if (this.inspectionMode === 'wireframe') {
+        mesh.material = new THREE.MeshBasicMaterial({ color: 0x71d5ff, wireframe: true });
+      } else {
+        mesh.material = new THREE.MeshBasicMaterial({ color: 0xffffff, map: findTexture(original) });
+      }
+    });
   }
 
   private doExport(kind: 'glb' | 'obj' | 'stl'): void {

@@ -4,6 +4,29 @@ import { defineConfig } from 'vite';
 // 올려도(예: https://example.com/3d/) 그대로 동작합니다.
 export default defineConfig({
   base: './',
+  plugins: [{
+    name: 'identity3d-utf8-html',
+    configureServer(server) {
+      server.middlewares.use((_req, res, next) => {
+        const setHeader = res.setHeader.bind(res);
+        res.setHeader = ((name: string, value: number | string | readonly string[]) => {
+          if (name.toLowerCase() === 'content-type' && value === 'text/html') value = 'text/html; charset=utf-8';
+          return setHeader(name, value);
+        }) as typeof res.setHeader;
+        next();
+      });
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use((_req, res, next) => {
+        const setHeader = res.setHeader.bind(res);
+        res.setHeader = ((name: string, value: number | string | readonly string[]) => {
+          if (name.toLowerCase() === 'content-type' && value === 'text/html') value = 'text/html; charset=utf-8';
+          return setHeader(name, value);
+        }) as typeof res.setHeader;
+        next();
+      });
+    },
+  }],
   build: {
     outDir: 'dist',
     target: 'es2020',

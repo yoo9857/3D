@@ -10,8 +10,10 @@
     "license": {"type": "object", "required": ["name", "source_url", "commercial_ok"]},
     "source": {"type": "object", "required": ["original_files", "sha256"]},
     "geometry": {"type": "object", "required": ["normalized_mesh", "units", "coordinate_system", "watertight"]},
-    "views": {"type": "array", "items": {"type": "object", "required": ["rgb", "depth", "normal", "segmentation", "camera"]}},
+    "views": {"type": "array", "items": {"type": "object", "required": ["rgb", "depth", "normal", "segmentation", "camera"], "properties": {"camera": {"type": "object", "required": ["intrinsics", "extrinsics"]}, "albedo": {"type": "string"}, "material_id": {"type": "string"}}}},
+    "materials": {"type": "object", "properties": {"base_color": {"type": "string"}, "normal": {"type": "string"}, "roughness": {"type": "string"}, "metallic": {"type": "string"}, "ao": {"type": "string"}, "opacity": {"type": "string"}}},
+    "rig": {"type": "object", "properties": {"skeleton": {"type": "string"}, "skin_weights": {"type": "string"}, "blendshapes": {"type": "string"}}},
     "identity3d": {"type": "object", "properties": {"ovoxel_path": {"type": "string"}, "resolution": {"type": "integer"}}},
-    "qa": {"type": "object", "required": ["missing_textures", "non_manifold", "uv_coverage", "leakage_check"]}
+    "qa": {"type": "object", "required": ["missing_textures", "non_manifold", "uv_coverage", "leakage_check"], "properties": {"upright_y": {"type": "boolean"}, "winding_consistent": {"type": "boolean"}, "identity_split": {"type": "string"}}}
   }
 }

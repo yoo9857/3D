@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 import sys
+import json
 from pathlib import Path
 import trimesh
 import numpy as np
 from PIL import Image
-from identity3d import IdentityPipeline, IdentityPipelineConfig
+from identity3d import IdentityPipeline, IdentityPipelineConfig, evaluate_character
 
 
 def apply_image_texture(mesh: trimesh.Trimesh, texture_path: str) -> None:
@@ -42,6 +43,7 @@ def apply_image_texture(mesh: trimesh.Trimesh, texture_path: str) -> None:
 def main() -> None:
     source, target = sys.argv[1], sys.argv[2]
     texture_path = sys.argv[3] if len(sys.argv) > 3 and Path(sys.argv[3]).exists() else None
+    report_path = Path(sys.argv[4]) if len(sys.argv) > 4 else Path(target).with_suffix(".quality.json")
     scene = trimesh.load(source, force="scene")
     meshes = [g for g in scene.geometry.values() if isinstance(g, trimesh.Trimesh)]
     if not meshes:
@@ -115,6 +117,14 @@ def main() -> None:
         apply_image_texture(result, texture_path)
     Path(target).parent.mkdir(parents=True, exist_ok=True)
     result.export(target)
+    quality = evaluate_character(result)
+    quality.update({
+        "candidate_accepted": candidate_ok,
+        "ovoxel_inflation": float(inflation),
+        "coordinate_system": "right-handed-y-up-front-positive-z",
+    })
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(quality, ensure_ascii=False, indent=2), encoding="utf-8")
     # Keep the learned sparse representation alongside the display mesh.
     sidecar = Path(target).with_suffix(".ovoxel.npz")
     np.savez_compressed(sidecar, coords=ov.coords, features=ov.features, resolution=ov.resolution,

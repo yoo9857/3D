@@ -1,7 +1,8 @@
 import unittest
 import numpy as np
+import trimesh
 
-from identity3d import OVoxel, OVoxelConfig
+from identity3d import OVoxel, OVoxelConfig, evaluate_character
 from identity3d.flexgemm import sparse_neighbor_aggregate
 
 
@@ -28,6 +29,13 @@ class IdentityCoreTests(unittest.TestCase):
         features = torch.tensor([[1.0], [3.0]])
         out = sparse_neighbor_aggregate(coords, features)
         torch.testing.assert_close(out, torch.tensor([[2.0], [2.0]]))
+
+    def test_character_quality_contract(self):
+        mesh = trimesh.creation.box(extents=(1.0, 2.0, 0.5))
+        report = evaluate_character(mesh)
+        self.assertEqual(report["schema"], "identity3d.quality.v1")
+        self.assertTrue(report["checks"]["upright_y"])
+        self.assertIn("texture_present", report["retry_reasons"])
 
 
 if __name__ == "__main__":

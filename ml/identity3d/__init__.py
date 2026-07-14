@@ -7,5 +7,9 @@ stable between training, reconstruction and export.
 
 from .ovoxel import OVoxel, OVoxelConfig
 from .pipeline import IdentityPipeline, IdentityPipelineConfig
+from .quality import QualityThresholds, evaluate_character
 
-__all__ = ["OVoxel", "OVoxelConfig", "IdentityPipeline", "IdentityPipelineConfig"]
+__all__ = [
+    "OVoxel", "OVoxelConfig", "IdentityPipeline", "IdentityPipelineConfig",
+    "QualityThresholds", "evaluate_character",
+]

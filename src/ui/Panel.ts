@@ -33,6 +33,8 @@ export interface UploadOptions {
   label: string;
   accept: string;
   onFile: (file: File) => void;
+  multiple?: boolean;
+  onFiles?: (files: File[]) => void;
 }
 
 let uid = 0;
@@ -170,11 +172,13 @@ export class Panel {
     input.type = 'file';
     input.id = id;
     input.accept = opts.accept;
+    input.multiple = opts.multiple ?? false;
     input.hidden = true;
 
     input.addEventListener('change', () => {
-      const file = input.files?.[0];
-      if (file) opts.onFile(file);
+      const files = Array.from(input.files ?? []);
+      if (files.length && opts.onFiles) opts.onFiles(files);
+      else if (files[0]) opts.onFile(files[0]);
       input.value = ''; // 같은 파일 재선택 허용
     });
 

@@ -18,6 +18,7 @@ const Jimp = require('jimp');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
 const { spawn } = require('child_process');
 const { buildReliefGLB } = require('./lib/relief');
 
@@ -27,6 +28,8 @@ const TRIPOSR_INFER = process.env.TRIPOSR_INFER || 'C:\\3D\\ml\\infer.py';
 const IDENTITY_POSTPROCESS = process.env.IDENTITY_POSTPROCESS || 'C:\\3D\\ml\\identity_postprocess.py';
 
 const app = express();
+const jobs = new Map();
+const JOB_TTL_MS = 60 * 60 * 1000;
 
 // 브라우저(다른 오리진)에서 호출 허용
 app.use((req, res, next) => {
@@ -125,17 +128,20 @@ function runIdentity3D(buffer, mcRes, onProgress) {
     const input = path.join(work, 'input.glb');
     const texture = path.join(work, 'source-image.png');
     const output = path.join(work, 'identity.glb');
+    const report = path.join(work, 'identity.quality.json');
     fs.writeFileSync(input, raw);
     fs.writeFileSync(texture, buffer);
-    const child = spawn(TRIPOSR_PY, [IDENTITY_POSTPROCESS, input, output, texture], { windowsHide: true });
+    const child = spawn(TRIPOSR_PY, [IDENTITY_POSTPROCESS, input, output, texture, report], { windowsHide: true });
     let stderr = '';
     child.stderr.on('data', (d) => { stderr = (stderr + d.toString()).slice(-1200); });
     const finish = (fn) => { try { fs.rmSync(work, { recursive: true, force: true }); } catch (_) {} fn(); };
     child.on('error', (e) => finish(() => reject(e)));
     child.on('close', (code) => {
       if (code !== 0 || !fs.existsSync(output)) return finish(() => reject(new Error(`Identity3D failed: ${stderr}`)));
-      const result = fs.readFileSync(output);
-      finish(() => resolve(result));
+      const glb = fs.readFileSync(output);
+      let quality = null;
+      try { quality = JSON.parse(fs.readFileSync(report, 'utf8')); } catch (_) {}
+      finish(() => resolve({ glb, quality }));
     });
   }));
 }
@@ -153,9 +159,9 @@ async function generateGLB(buffer, query, onProgress) {
   }
   if (mode === 'identity') {
     onProgress?.(0.1, 'Identity3D O-Voxel reconstruction');
-    const glb = await runIdentity3D(buffer, mcRes, onProgress);
+    const result = await runIdentity3D(buffer, mcRes, onProgress);
     onProgress?.(1.0, 'Identity3D complete');
-    return { glb, backend: 'identity3d-ovoxel-local' };
+    return { glb: result.glb, quality: result.quality, backend: 'identity3d-ovoxel-local' };
   }
   try {
     const glb = await runTripoSR(buffer, mcRes, onProgress);
@@ -229,6 +235,90 @@ app.post('/generate', upload.single('image'), async (req, res) => {
     res.end();
   }
 });
+
+function publicJob(job) {
+  return {
+    id: job.id, status: job.status, progress: job.progress, stage: job.stage,
+    createdAt: job.createdAt, updatedAt: job.updatedAt, preset: job.preset,
+    inputViews: job.inputViews, backend: job.backend || null,
+    quality: job.quality || null, error: job.error || null,
+    capabilities: {
+      singleView: true, multiViewUpload: true,
+      multiViewGeometryFusion: false, pbr: ['baseColor', 'normal'],
+      rigging: false, blendshapes: false,
+    },
+    resultUrl: job.status === 'complete' ? `/v2/jobs/${job.id}/result` : null,
+  };
+}
+
+function setJob(job, patch) {
+  Object.assign(job, patch, { updatedAt: new Date().toISOString() });
+}
+
+function isSupportedImage(file) {
+  const b = file && file.buffer;
+  if (!b || b.length < 12) return false;
+  const png = b[0] === 0x89 && b.slice(1, 4).toString('ascii') === 'PNG';
+  const jpeg = b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff;
+  const webp = b.slice(0, 4).toString('ascii') === 'RIFF' && b.slice(8, 12).toString('ascii') === 'WEBP';
+  return png || jpeg || webp;
+}
+
+app.post('/v2/jobs', upload.array('images', 4), (req, res) => {
+  const images = req.files || [];
+  if (!images.length) return res.status(400).json({ error: 'images field requires 1-4 image files' });
+  if (!images.every(isSupportedImage)) return res.status(415).json({ error: 'images must be valid PNG, JPEG, or WebP files' });
+  const preset = ['preview', 'production', 'rigged'].includes(req.body.preset) ? req.body.preset : 'production';
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const job = {
+    id, status: 'queued', progress: 0, stage: 'queued', createdAt: now, updatedAt: now,
+    preset, inputViews: images.length, result: null, quality: null, error: null,
+  };
+  jobs.set(id, job);
+  res.status(202).json(publicJob(job));
+
+  setImmediate(async () => {
+    try {
+      setJob(job, { status: 'running', progress: 0.02, stage: 'preprocess' });
+      const mc = preset === 'preview' ? 256 : 384;
+      // The current owned baseline accepts multi-view uploads and preserves the
+      // contract. Geometry fusion stays explicitly disabled until the trained
+      // O-Voxel fusion checkpoint is installed; the first image is authoritative.
+      const result = await generateGLB(images[0].buffer, { mode: 'identity', mc }, (progress, stage) => {
+        setJob(job, { progress: Math.min(0.98, progress), stage });
+      });
+      setJob(job, {
+        status: 'complete', progress: 1, stage: 'complete', result: result.glb,
+        backend: result.backend, quality: result.quality || null,
+      });
+    } catch (error) {
+      setJob(job, { status: 'failed', stage: 'failed', error: String(error && error.message || error) });
+    }
+  });
+});
+
+app.get('/v2/jobs/:id', (req, res) => {
+  const job = jobs.get(req.params.id);
+  if (!job) return res.status(404).json({ error: 'job not found' });
+  res.json(publicJob(job));
+});
+
+app.get('/v2/jobs/:id/result', (req, res) => {
+  const job = jobs.get(req.params.id);
+  if (!job) return res.status(404).json({ error: 'job not found' });
+  if (job.status !== 'complete' || !job.result) return res.status(409).json({ error: 'job is not complete' });
+  res.setHeader('Content-Type', 'model/gltf-binary');
+  res.setHeader('X-Backend', job.backend || 'identity3d');
+  res.send(job.result);
+});
+
+setInterval(() => {
+  const cutoff = Date.now() - JOB_TTL_MS;
+  for (const [id, job] of jobs) {
+    if (Date.parse(job.updatedAt) < cutoff) jobs.delete(id);
+  }
+}, 10 * 60 * 1000).unref();
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
